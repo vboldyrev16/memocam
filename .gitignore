@@ -2,7 +2,6 @@ node_modules/
 dist/
 public/models/
 public/wasm/
-public/media/
 *.log
 .env*
 .DS_Store

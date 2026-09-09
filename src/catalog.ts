@@ -47,7 +47,3 @@ export const memes: Meme[] = [
 export type CustomMedia = { image?: string; video?: string; audio?: string; name: string };
 
 export function inPack(meme:Meme,pack:PackId){return meme.pack===pack || meme.person===pack || (pack==='special'&&meme.person==='tinkov');}
-
-// Public edition ships original text cards, not third-party meme media.
-for(const m of memes){m.image=`/demo/${m.id}.svg`;delete m.video;delete m.audio;}
-for(const p of packs){if(p.cover)p.cover='/demo/tinkov-tongue.svg';}
