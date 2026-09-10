@@ -6,6 +6,13 @@ export function useCamera(onObservation:(o:Observation)=>void,options:{backgroun
   const [status,setStatus]=useState<CameraStatus>('off');
   const [error,setError]=useState('');
   const [fps,setFps]=useState(0);
+  const [devices,setDevices]=useState<MediaDeviceInfo[]>([]);
+  const [deviceId,setDeviceId]=useState(()=>{try{return localStorage.getItem('memocam.camera.v1')??'';}catch{return '';}});
+  const preferred=useRef(deviceId);
+  const refreshDevices=useCallback(async()=>{
+    try{const all=await navigator.mediaDevices?.enumerateDevices();setDevices((all??[]).filter(d=>d.kind==='videoinput'&&d.deviceId));}catch{/* Permission errors are reported when starting the camera. */}
+  },[]);
+  useEffect(()=>{void refreshDevices();navigator.mediaDevices?.addEventListener('devicechange',refreshDevices);return()=>navigator.mediaDevices?.removeEventListener('devicechange',refreshDevices);},[refreshDevices]);
   const video=useRef<HTMLVideoElement|null>(null);
   const stream=useRef<MediaStream|null>(null);
   const worker=useRef<Worker|null>(null);
@@ -23,13 +30,14 @@ export function useCamera(onObservation:(o:Observation)=>void,options:{backgroun
     setFps(0);
   },[]);
   const stop=useCallback(()=>{release();setStatus('off');},[release]);
-  const start=useCallback(async()=>{
+  const start=useCallback(async(selected?:string)=>{
+    if(selected!==undefined){preferred.current=selected;setDeviceId(selected);try{localStorage.setItem('memocam.camera.v1',selected);}catch{/* Camera remains usable without storage. */}}
     release();const gen=generation.current;setError('');setStatus('permission');
     try {
       if(!navigator.mediaDevices?.getUserMedia)throw new Error('Для камеры открой приложение на localhost или по HTTPS.');
-      const s=await navigator.mediaDevices.getUserMedia({video:{width:{ideal:640},height:{ideal:480},facingMode:'user'},audio:false});
+      const s=await navigator.mediaDevices.getUserMedia({video:{width:{ideal:640},height:{ideal:480},...(preferred.current?{deviceId:{exact:preferred.current}}:{facingMode:'user'})},audio:false});
       if(gen!==generation.current){s.getTracks().forEach(t=>t.stop());return;}
-      stream.current=s;
+      stream.current=s;void refreshDevices();
       const el=video.current;if(!el)throw new Error('Не удалось открыть окно камеры.');
       el.srcObject=s;await el.play();
       if(gen!==generation.current)return;
@@ -67,9 +75,9 @@ export function useCamera(onObservation:(o:Observation)=>void,options:{backgroun
       if(gen!==generation.current)return;
       release();setStatus('error');
       const name=e instanceof DOMException?e.name:'';
-      setError(name==='NotAllowedError'?'Доступ к камере не разрешён. Разреши его в настройках сайта рядом с адресом и попробуй снова.':name==='NotFoundError'?'Камера не найдена. Подключи веб-камеру или открой приложение на устройстве с камерой.':name==='NotReadableError'?'Камера занята другим приложением. Освободи её и попробуй снова.':e instanceof Error?e.message:'Камера недоступна. Попробуй снова.');
+      setError(name==='NotAllowedError'?'Доступ к камере не разрешён. Разреши его в настройках сайта рядом с адресом и попробуй снова.':name==='OverconstrainedError'?'Выбранная камера недоступна. Подключи её или выбери другую в списке камер.':name==='NotFoundError'?'Камера не найдена. Подключи веб-камеру или открой приложение на устройстве с камерой.':name==='NotReadableError'?'Камера занята другим приложением. Освободи её и попробуй снова.':e instanceof Error?e.message:'Камера недоступна. Попробуй снова.');
     }
-  },[release,background]);
+  },[release,background,refreshDevices]);
   useEffect(()=>()=>release(),[release]);
-  return {status,error,fps,video,start,stop};
+  return {status,error,fps,video,start,stop,devices,deviceId,refreshDevices};
 }

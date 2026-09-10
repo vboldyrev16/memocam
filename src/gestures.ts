@@ -66,7 +66,7 @@ export class GestureDetector {
       if(h.pointing&&Math.abs(h.p[8].x-face.brow.x)>fw*.4&&Math.abs(h.p[8].x-face.brow.x)<fw*.95&&Math.abs(h.p[8].y-face.brow.y)<fw*.45)add('temple',1);
       if(h.pointing&&distance(h.p[8],face.mouth)<fw*.3)add('shush',1);
       if(h.curled&&distance(h.center,face.mouth)<fw*.6)add('chin',.99);
-      if(h.open){
+      if(h.extended.filter(Boolean).length>=3){
         this.waveTrail.push({time:o.time,p:h.center});this.waveTrail=this.waveTrail.filter(p=>o.time-p.time<850);
         const first=this.waveTrail[0];
         if(this.waveTrail.length>=5){const xs=this.waveTrail.map(p=>p.p.x),span=Math.max(...xs)-Math.min(...xs);const middle=this.waveTrail[Math.floor(this.waveTrail.length/2)];if(span>fw*.65&&(middle.p.x-first.p.x)*(h.center.x-middle.p.x)<0&&o.time-first.time>220)this.waveUntil=o.time+350;}
@@ -77,7 +77,8 @@ export class GestureDetector {
       if(h.victory)add('victory',.98);
       if(h.open&&distance(h.center,face.brow)/fw<.65)add('facepalm',.98);
       if(h.open&&h.center.y>face.brow.y&&distance(h.center,face.mouth)/fw<.95)add('cheek',.9);
-      if(h.pointing&&distance(h.p[8],face.brow)/fw<.4)add('glasses',.98);
+      // A side view projects the temple onto the bridge; never use a cached face here.
+      if(o.face&&Number.isFinite(face.yaw??0)&&Math.abs(face.yaw??0)<.2&&h.pointing&&Math.abs(h.p[8].x-face.brow.x)<fw*.18&&Math.abs(h.p[8].y-face.brow.y)<fw*.25)add('glasses',.98);
       if(h.open&&distance(h.center,face.center)/fw>1.0)add('palm',.9);
       if(h.pointing&&distance(h.p[8],face.center)/fw>.8){
         add('point',.87);
@@ -102,7 +103,8 @@ export class GestureGate {
   private fired=false;
   private neutralSince:number|null=null;
   private lastFire=-Infinity;
-  reset(){this.candidate=null;this.since=0;this.fired=false;this.neutralSince=null;this.lastFire=-Infinity;}
+  private lastFiredGesture:GestureId|null=null;
+  reset(){this.candidate=null;this.since=0;this.fired=false;this.neutralSince=null;this.lastFire=-Infinity;this.lastFiredGesture=null;}
   update(candidates:Candidate[],allowed:Meme[],now:number,holdMs=450,faceHoldMs=450) {
     const best=candidates.map(c=>({c,m:allowed.find(m=>m.gesture===c.gesture)})).find(x=>x.m);
     if(!best?.m){
@@ -112,11 +114,14 @@ export class GestureGate {
       return {progress:0,matched:null as string|null,fired:null as string|null};
     }
     this.neutralSince=null;
-    if(this.fired || now-this.lastFire<this.cooldownMs)return {progress:0,matched:best.m.id,fired:null};
+    // Raising an open palm is the beginning of a wave, not a separate attempt.
+    const completesPalm=this.fired&&this.lastFiredGesture==='palm'&&best.m.gesture==='wave';
+    if(!completesPalm&&(this.fired || now-this.lastFire<this.cooldownMs))return {progress:0,matched:best.m.id,fired:null};
     if(this.candidate!==best.m.id){this.candidate=best.m.id;this.since=now;}
     const threshold=best.m.gesture==='swipe'?90:isExpression(best.m.gesture)?Math.max(faceHoldMs,holdMs):holdMs;
-    const progress=Math.min(1,(now-this.since)/threshold);
-    if(progress>=1){this.fired=true;this.lastFire=now;return {progress:1,matched:best.m.id,fired:best.m.id};}
+    // Wave detection already requires multiple frames, travel and a reversal.
+    const progress=best.m.gesture==='wave'?1:Math.min(1,(now-this.since)/threshold);
+    if(progress>=1){this.fired=true;this.lastFire=now;this.lastFiredGesture=best.m.gesture;return {progress:1,matched:best.m.id,fired:best.m.id};}
     return {progress,matched:best.m.id,fired:null};
   }
 }

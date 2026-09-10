@@ -51,3 +51,11 @@ it('calibration subtracts the resting expression, disabled targets remain disabl
 it('quick wink is rejected',()=>{const r=new RealtimeRecognizer();for(let t=0;t<=1600;t+=200)r.update({time:t,face,hands:[]},memes);const wink={...face,scores:{eyeBlinkLeft:.9,eyeBlinkRight:0}};r.update({time:2000,face:wink,hands:[]},memes);expect(r.update({time:2100,face:wink,hands:[]},memes).fired).toBeNull();expect(r.update({time:2250,face,hands:[]},memes).fired).toBeNull();});
 it('keeps existing hand routes and does not duplicate laugh',()=>{expect(recognitionRoutes(memes.find(m=>m.id==='tinkov-wow')!).map(m=>m.gesture)).toEqual(['thumbs','smile']);expect(recognitionRoutes(memes.find(m=>m.id==='cook')!)).toHaveLength(1);});
 it('mirrors landmarks in contain bounds across desktop and portrait sizes',()=>{expect(projectPoint({x:0,y:0},4/3,1280,720)).toEqual({x:1120,y:0});expect(projectPoint({x:4/3,y:1},4/3,1280,720)).toEqual({x:160,y:720});const p=projectPoint({x:2/3,y:.5},4/3,390,844);expect(p.x).toBeCloseTo(195);expect(p.y).toBeCloseTo(422);});
+it('rejects apparent squint during head turns on either side',()=>{
+ for(const yaw of [-.28,.28])expect(detectExpressions({...face,yaw,scores:{eyeSquintLeft:.4,eyeSquintRight:.4,eyeBlinkLeft:.4,eyeBlinkRight:.4}}).some(c=>c.gesture==='squint')).toBe(false);
+});
+it('calibration must not subtract away closed eyes',()=>{
+ const r=new RealtimeRecognizer();for(let time=0;time<=1600;time+=200)r.update({time,face:{...face,scores:{eyeBlinkLeft:.3,eyeBlinkRight:.3}},hands:[]},memes);
+ const blink={...face,scores:{eyeSquintLeft:.4,eyeSquintRight:.4,eyeBlinkLeft:.85,eyeBlinkRight:.85}};
+ for(let time=2000;time<=2800;time+=100)expect(r.update({time,face:blink,hands:[]},memes,250,false,{},450,['know:squint']).fired).toBeNull();
+});

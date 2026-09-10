@@ -15,3 +15,30 @@ it('wave needs a reversal, stays long enough for temporal hold',()=>{const d=new
 
 import {poseFixtures} from './pose-fixtures';
 it('recognises real-model finger-gun and stacked-hand observations',()=>{expect(new GestureDetector().detect(poseFixtures[0])[0].gesture).toBe('fingerGuns');expect(new GestureDetector().detect(poseFixtures[1])[0].gesture).toBe('chinRest');});
+it('glasses requires current frontal face and a finger tightly at the bridge',()=>{
+ const h=hand(.53,.45,[true,false,false,false]);
+ expect(new GestureDetector().detect({time:100,face,hands:[h]}).some(c=>c.gesture==='glasses')).toBe(true);
+ for(const yaw of [-.28,.28])expect(new GestureDetector().detect({time:100,face:{...face,yaw},hands:[h]}).some(c=>c.gesture==='glasses')).toBe(false);
+ expect(new GestureDetector().detect({time:100,face,hands:[hand(.6,.45,[true,false,false,false])]}).some(c=>c.gesture==='glasses')).toBe(false);
+ const d=new GestureDetector();d.detect({time:100,face,hands:[]});expect(d.detect({time:200,face:null,hands:[h]}).some(c=>c.gesture==='glasses')).toBe(false);
+});
+it('completed wave fires even with long pose hold, but a still palm never fires squirrel',()=>{
+ for(const hold of [250,800]){
+  const r=calibrated(),allowed=memes.filter(m=>m.id==='squirrel-goodbye');
+  for(let time=2000;time<3000;time+=100)expect(r.update({time,face,hands:[hand(.85,.4)]},allowed,hold).fired).toBeNull();
+  r.reset();const fired=[.65,.70,.75,.80,.85,.70].map((x,i)=>r.update({time:4000+i*100,face,hands:[hand(x,.4)]},allowed,hold).fired).filter(Boolean);
+  expect(fired.map(m=>m!.id)).toEqual(['squirrel-goodbye']);
+  expect(r.update({time:4600,face,hands:[hand(.7,.4)]},allowed,hold).fired).toBeNull();
+ }
+});
+it('completed wave can supersede the raised palm that precedes it in a mixed set',()=>{
+ const r=calibrated(),allowed=memes.filter(m=>m.id==='squirrel-goodbye'||m.gesture==='palm');
+ r.update({time:2000,face,hands:[hand(.9,.4)]},allowed);
+ expect(r.update({time:2300,face,hands:[hand(.9,.4)]},allowed).fired?.gesture).toBe('palm');
+ const fired=[.9,.95,1,1.05,1.1,.95].map((x,i)=>r.update({time:2400+i*100,face,hands:[hand(x,.4)]},allowed).fired).filter(Boolean);
+ expect(fired.some(m=>m?.id==='squirrel-goodbye')).toBe(true);
+});
+it('a briefly bent pinky does not erase an otherwise complete wave',()=>{
+ const d=new GestureDetector();const result=[.65,.7,.75,.8,.85,.7].flatMap((x,i)=>d.detect({time:100+i*100,face,hands:[hand(x,.4,[true,true,true,i!==3])]}));
+ expect(result.some(c=>c.gesture==='wave')).toBe(true);
+});

@@ -2,7 +2,7 @@ import type {Meme,GestureId} from './catalog';
 import type {Face,Candidate} from './gestures';
 import type {ExpressionAssignments} from './preferences';
 export const expressionBindings:{gesture:GestureId;ids:string[];label:string;hint:string}[]=[
- {gesture:'squint',ids:['know'],label:'Прищур',hint:'Прищурь оба глаза, не закрывая их полностью'},
+ {gesture:'squint',ids:['know'],label:'Прищур',hint:'Смотри примерно прямо и прищурь оба глаза, не закрывая их полностью'},
  {gesture:'skeptic',ids:['tinkov-ok'],label:'Скепсис',hint:'Приподними одну бровь, вторую оставь спокойной'},
  {gesture:'smile',ids:['tinkov-wow'],label:'Улыбка',hint:'Широко улыбнись, рот почти закрыт'},
  {gesture:'surprise',ids:['okak'],label:'Удивление',hint:'Открой рот и приподними брови или раскрой глаза'},
@@ -24,7 +24,7 @@ export function expressionChecks(face:Face|null){
  const s=face?.scores??{},score=(key:string)=>s[key]??0;
  const brow=Math.max(score('browInnerUp'),(score('browOuterUpLeft')+score('browOuterUpRight'))/2);
  const eyes=(score('eyeWideLeft')+score('eyeWideRight'))/2;
- return {squint:{eyes:!!face&&Math.min(score('eyeSquintLeft'),score('eyeSquintRight'))>.16,notClosed:!!face&&Math.max(score('eyeBlinkLeft'),score('eyeBlinkRight'))<.65,notSmile:!!face&&face.smile<.3},squintValues:{left:score('eyeSquintLeft'),right:score('eyeSquintRight')},surprise:{mouth:!!face&&face.jaw>.16,eyesOrBrows:!!face&&(brow>.12||eyes>.12),notLaugh:!!face&&face.smile<.4},skeptic:{perspective:!!face&&Number.isFinite(face.yaw??0)&&Math.abs(face.yaw??0)<.2,brow:!!face&&Math.max(score('browOuterUpLeft'),score('browOuterUpRight'))>.12&&Math.abs(score('browOuterUpLeft')-score('browOuterUpRight'))>.09,relaxedMouth:!!face&&face.smile<.3&&face.jaw<.22}};
+ return {squint:{perspective:!!face&&Number.isFinite(face.yaw??0)&&Math.abs(face.yaw??0)<.2,eyes:!!face&&Math.min(score('eyeSquintLeft'),score('eyeSquintRight'))>.16,notClosed:!!face&&Math.max(score('eyeBlinkLeft'),score('eyeBlinkRight'))<.65,notSmile:!!face&&face.smile<.3},squintValues:{left:score('eyeSquintLeft'),right:score('eyeSquintRight')},surprise:{mouth:!!face&&face.jaw>.16,eyesOrBrows:!!face&&(brow>.12||eyes>.12),notLaugh:!!face&&face.smile<.4},skeptic:{perspective:!!face&&Number.isFinite(face.yaw??0)&&Math.abs(face.yaw??0)<.2,brow:!!face&&Math.max(score('browOuterUpLeft'),score('browOuterUpRight'))>.12&&Math.abs(score('browOuterUpLeft')-score('browOuterUpRight'))>.09,relaxedMouth:!!face&&face.smile<.3&&face.jaw<.22}};
 }
 export function detectExpressions(face:Face):Candidate[]{
  const s=face.scores;if(!s)return[];

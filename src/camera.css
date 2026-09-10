@@ -4,3 +4,8 @@
 .advanced-camera{border:1px solid #ffffff25;border-radius:7px;padding:10px;margin:12px 0;font-size:12px}.advanced-camera>summary{cursor:pointer;color:#d5e6ed}.advanced-camera[open]>summary{margin-bottom:12px}.live-packs button{transition:none}.live-settings h2{font-size:20px}
 .broadcast-scene .camera-tools,.broadcast-scene .tracking-status,.broadcast-scene .key-hint,.broadcast-scene .landmark-overlay,.broadcast-scene .calibration-note{display:none}.broadcast-scene .live-feed{transform:none}
 .live-settings .only-meme{font-size:10px;padding:6px;max-width:50px}.rotation-setting{display:flex;gap:10px;align-items:center;font-size:12px;margin:12px 0}.edition-packs{margin:12px 0}
+
+.camera-picker{display:flex;gap:6px;align-items:center;color:#f4f7fb;background:#171b21e8;padding:6px 10px;border-radius:8px;font:13px Arial;max-width:100%;box-sizing:border-box}.camera-picker label{display:flex;gap:8px;align-items:center;min-width:0}.camera-picker select{min-width:0;max-width:240px;background:#202833;color:#fff;border:1px solid #ffffff40;border-radius:5px;padding:6px;font:inherit}.camera-picker button{color:#fff;background:#202833;border:1px solid #ffffff40;border-radius:5px;cursor:pointer;padding:6px 10px}.camera-picker select:focus-visible,.camera-picker button:focus-visible{outline:2px solid #61eaff}.call-desk>.camera-picker{margin:16px 0;width:fit-content}@media(max-width:600px){.camera-picker select{max-width:200px}}
+
+/* The landmark canvas already contains a mirrored snapshot and points. Flip both together. */
+.unmirrored-preview .live-feed{transform:none}.unmirrored-preview > .landmark-overlay{transform:scaleX(-1)}

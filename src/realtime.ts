@@ -17,7 +17,7 @@ export class RealtimeRecognizer {
  update(input:Observation,enabled:Meme[],hold=250,rotate=true,assignments:ExpressionAssignments={},faceHold=450,exactPairs:string[]|null=null){
   const b=this.baseline;
   if(input.face&&!b.ready){b.start??=input.time;b.count++;b.jaw+=input.face.jaw;b.smile+=input.face.smile;for(const [key,value] of Object.entries(input.face.scores??{}))b.scores[key]=(b.scores[key]??0)+value;if(input.time-b.start>=1200&&b.count>=8){b.jaw/=b.count;b.smile/=b.count;for(const key in b.scores)b.scores[key]/=b.count;b.ready=true;}}
-  const o=b.ready&&input.face?{...input,face:{...input.face,scores:input.face.scores?Object.fromEntries(Object.entries(input.face.scores).map(([key,value])=>[key,Math.max(0,(value-(b.scores[key]??0))/(key==='eyeSquintLeft'||key==='eyeSquintRight'?Math.max(.15,1-(b.scores[key]??0)):1))])):undefined,jaw:Math.max(0,input.face.jaw-b.jaw),smile:Math.max(0,input.face.smile-b.smile)}}:input;
+  const o=b.ready&&input.face?{...input,face:{...input.face,scores:input.face.scores?Object.fromEntries(Object.entries(input.face.scores).map(([key,value])=>[key,key==='eyeBlinkLeft'||key==='eyeBlinkRight'?value:Math.max(0,(value-(b.scores[key]??0))/(key==='eyeSquintLeft'||key==='eyeSquintRight'?Math.max(.15,1-(b.scores[key]??0)):1))])):undefined,jaw:Math.max(0,input.face.jaw-b.jaw),smile:Math.max(0,input.face.smile-b.smile)}}:input;
   const candidates=b.ready?this.detector.detect(o):[];
   const byGesture=new Map<GestureId,Meme[]>();
   for(const m of selectedRoutes(enabled,assignments,exactPairs)){const group=byGesture.get(m.gesture)??[];group.push(m);byGesture.set(m.gesture,group);}
