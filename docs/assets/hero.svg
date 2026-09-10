@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="640" viewBox="0 0 1280 640" role="img" aria-labelledby="title desc">
+<title id="title">Memocam — your face, their reaction</title><desc id="desc">Facial expressions and hand gestures turn into memes on your camera. A local browser app.</desc>
+<defs><radialGradient id="g" cx="80%" cy="35%" r="85%"><stop stop-color="#30422a"/><stop offset="1" stop-color="#10170f"/></radialGradient><pattern id="dots" width="24" height="24" patternUnits="userSpaceOnUse"><circle cx="1" cy="1" r="1" fill="#c7ef91" opacity=".10"/></pattern></defs>
+<rect width="1280" height="640" rx="24" fill="url(#g)"/><rect width="1280" height="640" rx="24" fill="url(#dots)"/>
+<g font-family="Arial, sans-serif"><circle cx="66" cy="66" r="6" fill="#cdf092"/><text x="86" y="72" fill="#cdf092" font-size="18" letter-spacing="4">MEMOCAM / МЕМОКАМ</text>
+<text x="60" y="220" fill="#f1f5e9" font-size="80" font-weight="700" letter-spacing="-4">Your face.</text><text x="60" y="307" fill="#cdf092" font-size="80" font-weight="700" letter-spacing="-4">Their reaction.</text>
+<text x="64" y="367" fill="#c2cbb8" font-size="23">Expressions → memes → your camera.</text>
+<rect x="62" y="421" width="177" height="40" rx="20" fill="#263421" stroke="#506744"/><text x="84" y="447" fill="#e5ecd9" font-size="16">48 Russian memes</text><rect x="250" y="421" width="160" height="40" rx="20" fill="#263421" stroke="#506744"/><text x="272" y="447" fill="#e5ecd9" font-size="16">Local processing</text>
+<text x="64" y="579" fill="#a7b79a" font-size="17">A little less serious. A lot more expressive.</text>
+<g transform="translate(760 125) rotate(-5 130 160)"><rect width="280" height="350" rx="26" fill="#1a281b" stroke="#657956" stroke-width="2"/><rect x="18" y="18" width="244" height="273" rx="16" fill="#2b3d2c"/>
+<path d="M50 69V50h24M208 50h23v23M50 234v24h24M231 234v24h-24" fill="none" stroke="#cdf092" stroke-width="3"/>
+<ellipse cx="140" cy="150" rx="65" ry="82" fill="none" stroke="#9ce9d5" stroke-width="2"/><path d="M100 185q40 34 80 0M109 126h8m46 0h8M140 132l-8 33h18" fill="none" stroke="#cdf092" stroke-width="5" stroke-linecap="round"/>
+<g fill="#9ce9d5"><circle cx="140" cy="68" r="4"/><circle cx="91" cy="99" r="4"/><circle cx="187" cy="98" r="4"/><circle cx="75" cy="150" r="4"/><circle cx="204" cy="150" r="4"/><circle cx="140" cy="232" r="4"/><circle cx="105" cy="215" r="4"/><circle cx="175" cy="215" r="4"/></g><circle cx="32" cy="322" r="5" fill="#cdf092"/><text x="47" y="328" fill="#dfe9d3" font-size="15">EXPRESSION DETECTED</text></g>
+<g transform="translate(966 326) rotate(7)"><rect width="235" height="157" rx="22" fill="#cdf092"/><path d="M23 146l-17 35 57-30" fill="#cdf092"/><text x="25" y="60" fill="#182513" font-size="25" font-weight="700">Сомнительно,</text><text x="25" y="95" fill="#182513" font-size="25" font-weight="700">но окей.</text><text x="25" y="130" fill="#405331" font-size="14">DOUBTFUL, BUT OKAY.</text></g>
+<text x="790" y="556" fill="#a7b79a" font-size="15">YOU DO THE FACE. WE FIND THE MEME.</text></g></svg>
